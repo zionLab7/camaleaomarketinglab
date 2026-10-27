@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "orbit",
+      "file": "assets/orbit.svg",
+      "title": "Orbit",
+      "style": "illustration",
+      "tags": [
+        "abstract",
+        "starter"
+      ],
+      "provenance": {
+        "origin": "original vector starter",
+        "license": "MIT",
+        "illustrative": true
+      }
+    },
+    {
+      "id": "layers",
+      "file": "assets/layers.svg",
+      "title": "Layers",
+      "style": "illustration",
+      "tags": [
+        "abstract",
+        "starter"
+      ],
+      "provenance": {
+        "origin": "original vector starter",
+        "license": "MIT",
+        "illustrative": true
+      }
+    },
+    {
+      "id": "spark",
+      "file": "assets/spark.svg",
+      "title": "Spark",
+      "style": "illustration",
+      "tags": [
+        "abstract",
+        "starter"
+      ],
+      "provenance": {
+        "origin": "original vector starter",
+        "license": "MIT",
+        "illustrative": true
+      }
+    }
+  ]
+}

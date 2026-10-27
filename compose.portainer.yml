@@ -1,0 +1,86 @@
+x-environment: &environment
+  CML_APP_SECRET: "${CML_APP_SECRET:?Defina um valor privado forte}"
+  CML_ADMIN_PASSWORD: "${CML_ADMIN_PASSWORD:?Defina um valor privado forte}"
+  CML_INGEST_SECRET: "${CML_INGEST_SECRET:-}"
+  CML_COOKIE_SECURE: "${CML_COOKIE_SECURE:-false}"
+  CML_DOMAIN: "${CML_DOMAIN:-marketing.example.com}"
+  CML_CODEX_ENABLED: "${CML_CODEX_ENABLED:-false}"
+  CML_CREATIVE_MODEL: "${CML_CREATIVE_MODEL:-gpt-6-sol}"
+  CML_CREATIVE_FALLBACK_MODEL: "${CML_CREATIVE_FALLBACK_MODEL:-gpt-6.1-sol}"
+  CML_BLOG_CODEX_MODEL: "${CML_BLOG_CODEX_MODEL:-gpt-6-sol}"
+  CML_BLOG_PUBLISH_ENABLED: "${CML_BLOG_PUBLISH_ENABLED:-false}"
+  CML_BLOG_SSH_HOST: "${CML_BLOG_SSH_HOST:-}"
+  CML_BLOG_SSH_PORT: "${CML_BLOG_SSH_PORT:-22}"
+  CML_BLOG_SSH_USER: "${CML_BLOG_SSH_USER:-}"
+  CML_BLOG_REMOTE_BLOG_DIR: "${CML_BLOG_REMOTE_BLOG_DIR:-}"
+  CML_META_GRAPH_HOST: "${CML_META_GRAPH_HOST:-graph.instagram.com}"
+  CML_META_GRAPH_VERSION: "${CML_META_GRAPH_VERSION:-v26.0}"
+  CML_SMTP_HOST: "${CML_SMTP_HOST:-}"
+  CML_SMTP_PORT: "${CML_SMTP_PORT:-587}"
+  CML_SMTP_USER: "${CML_SMTP_USER:-}"
+  CML_SMTP_PASSWORD: "${CML_SMTP_PASSWORD:-}"
+  CML_REPORT_FROM: "${CML_REPORT_FROM:-}"
+  CML_REPORT_TO: "${CML_REPORT_TO:-}"
+  CML_DB_PATH: "/data/cml-marketing.db"
+  CML_HOST: "0.0.0.0"
+  CML_PORT: "8080"
+  CML_BLOG_SSH_KEY: "/home/cml/.ssh/id_ed25519"
+  CML_BLOG_KNOWN_HOSTS: "/home/cml/.ssh/known_hosts"
+x-runtime: &runtime
+  restart: unless-stopped
+  security_opt: ["no-new-privileges:true"]
+  read_only: true
+  cap_drop: [ALL]
+  tmpfs:
+    - /tmp:size=512m,mode=1777
+    - /home/cml/.cache:uid=10001,gid=10001,mode=0700,size=512m
+    - /home/cml/.hyperframes:uid=10001,gid=10001,mode=0700,size=128m
+services:
+  web:
+    <<: *runtime
+    image: ghcr.io/zionlab7/camaleaomarketinglab:main
+    networks: [default, proxy]
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: "${TRAEFIK_NETWORK:-traefik_public}"
+      traefik.http.routers.cml.rule: "Host(`${CML_DOMAIN:?Defina o domínio}`)"
+      traefik.http.routers.cml.entrypoints: "${TRAEFIK_ENTRYPOINT:-websecure}"
+      traefik.http.routers.cml.tls: "true"
+      traefik.http.routers.cml.tls.certresolver: "${TRAEFIK_CERTRESOLVER:-letsencrypt}"
+      traefik.http.services.cml.loadbalancer.server.port: "8080"
+    environment:
+      <<: *environment
+      CML_COOKIE_SECURE: "true"
+      CML_WORKER_ROLE: web
+    volumes: [marketing_data:/data]
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz',timeout=2)"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+  editorial:
+    <<: *runtime
+    image: ghcr.io/zionlab7/camaleaomarketinglab:main
+    command: [python, scheduler.py]
+    environment:
+      <<: *environment
+      CML_WORKER_ROLE: editorial
+    volumes: [marketing_data:/data, codex_auth:/home/cml/.codex]
+    labels: [traefik.enable=false]
+  publisher:
+    <<: *runtime
+    image: ghcr.io/zionlab7/camaleaomarketinglab:main
+    command: [python, scheduler.py]
+    environment:
+      <<: *environment
+      CML_WORKER_ROLE: publisher
+    volumes: [marketing_data:/data, blog_ssh:/home/cml/.ssh]
+    labels: [traefik.enable=false]
+volumes:
+  marketing_data:
+  codex_auth:
+  blog_ssh:
+networks:
+  proxy:
+    external: true
+    name: "${TRAEFIK_NETWORK:-traefik_public}"

@@ -1,0 +1,17 @@
+DirectoryIndex index.html
+<IfModule mod_headers.c>
+  Header unset Clear-Site-Data
+  Header always unset Clear-Site-Data
+  <FilesMatch "\.html$">
+    Header unset Cache-Control
+    Header always set Cache-Control "public, max-age=60, s-maxage=300, stale-while-revalidate=60"
+    Header unset Pragma
+    Header always unset Pragma
+    Header unset Expires
+    Header always unset Expires
+  </FilesMatch>
+  <FilesMatch "\.(?:css|woff2)$">
+    Header unset Cache-Control
+    Header always set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>

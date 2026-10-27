@@ -1,0 +1,6 @@
+Pillow>=11,<13
+langgraph==1.2.16
+jsonschema==4.26.0
+cryptography>=44,<47
+tzdata>=2025,<2028
+google-auth[requests]>=2.40,<3

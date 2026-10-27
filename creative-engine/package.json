@@ -1,0 +1,9 @@
+{
+  "name": "camaleao-marketing-renderer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {"build": "node build.mjs", "render:stills": "node render-stills.mjs"},
+  "dependencies": {"gsap": "3.14.2", "hyperframes": "0.8.183", "playwright-core": "1.62.1"}
+}

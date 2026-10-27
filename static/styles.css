@@ -9,3 +9,13 @@
 :root{--navy:#142c35;--navy2:#59103b;--ink:#321625;--paper:#f7f8f2;--lime:#c4f16c;--orange:#e87223;--border:#eadde3}.hero{background:linear-gradient(125deg,#142c35,#6e124a)}.hero:before{background:radial-gradient(circle,#e87223 0%,transparent 65%)}.hero p{color:#f2dbe7}.hero-graphic>span{background:#c4f16c;color:#142c35}.sidebar{background:#1a0412}.brand-mark,.login-emblem{background:#f7f8f2;color:#6e124a}.login-art{background:linear-gradient(135deg,#1a0412,#6e124a)}.login-card h1 em{color:#e87223}.button.dark,.button.primary{background:#142c35}.button.accent{background:#c4f16c;color:#142c35}.eyebrow,.eyebrow.light{color:#d76b1e}.nav-item.active{background:#6e124a}.status-dot{background:#c4f16c;box-shadow:0 0 0 5px #c4f16c22}
 @media(max-width:900px){.connection-forms{grid-template-columns:1fr}}
 .review-dialog{padding:28px;max-height:90vh;overflow:auto}.review-dialog #reviewSummary{color:#6f5e67;line-height:1.6}.review-body{white-space:pre-wrap;line-height:1.75;color:#321625;border-top:1px solid #eadde3;border-bottom:1px solid #eadde3;padding:20px 0;max-height:55vh;overflow:auto}
+/* Per-installation identity overrides, after the base dashboard theme. */
+:root{--brand-primary:#142c35;--brand-accent:#c4f16c;--brand-background:#f7f8f2}
+body{background:var(--brand-background)}
+.sidebar,.creative-brief-card{background:var(--brand-primary)}
+.hero,.login-art{background:linear-gradient(125deg,var(--brand-primary),color-mix(in srgb,var(--brand-primary) 78%,var(--brand-accent)))}
+.nav-item.active,.nav-item:hover{background:color-mix(in srgb,var(--brand-primary) 78%,white)}
+.brand-mark,.login-emblem,.button.accent{background:var(--brand-accent);color:var(--brand-primary)}
+.hero h1 em,.hero-graphic>span{color:var(--brand-accent)}
+.hero-graphic>span{background:var(--brand-accent);color:var(--brand-primary)}
+#brandForm .form-grid>h3,#brandForm .form-grid>p{grid-column:1/-1}

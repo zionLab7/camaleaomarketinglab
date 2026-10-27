@@ -4,6 +4,8 @@
 
 Servidor Linux com Docker Standalone e Portainer, domínio próprio, DNS A/AAAA apontando para o servidor, Traefik já configurado para HTTPS e uma rede Docker externa compartilhada. Recomenda-se começar com 4 vCPU e 4–8 GB de RAM para Chromium/FFmpeg; a carga de renderização depende do conteúdo. O sistema não instala nem modifica seu Traefik.
 
+A imagem publicada pelo workflow padrão é Linux amd64. Servidores ARM64 podem construir pelo código conforme a alternativa abaixo; a imagem também foi construída/testada localmente em ARM64.
+
 O workflow **Test and publish** testa o código e publica uma imagem no GHCR após cada push em `main`. Antes de instalar, confirme o workflow verde e a imagem disponível. Se o GHCR exigir login, torne o pacote público nas configurações do GitHub Packages ou configure acesso de leitura ao registro no Portainer. A visibilidade pública do repositório não garante automaticamente a visibilidade do pacote.
 
 ## Importação pelo Git

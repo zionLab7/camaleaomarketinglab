@@ -78,4 +78,4 @@ node tests/test_tracking.js
 python scripts/check_public_source.py
 ```
 
-Veja [arquitetura](docs/ARQUITETURA.md), [segurança](SECURITY.md), [contribuição](CONTRIBUTING.md) e [notas de terceiros](THIRD_PARTY.md). Código próprio sob [MIT](LICENSE); dependências preservam suas respectivas licenças.
+Veja [verificações da edição pública](docs/VALIDACAO.md), [arquitetura](docs/ARQUITETURA.md), [segurança](SECURITY.md), [contribuição](CONTRIBUTING.md) e [notas de terceiros](THIRD_PARTY.md). Código próprio sob [MIT](LICENSE); dependências preservam suas respectivas licenças.

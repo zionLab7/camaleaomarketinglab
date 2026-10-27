@@ -8,7 +8,7 @@ async function brandLoad(){
  }
  for(const [role,value] of Object.entries(b.agents))f.elements['agent_'+role].value=value;
  document.querySelectorAll('[data-brand-name]').forEach(el=>el.textContent=b.name);
- document.documentElement.style.setProperty('--navy',b.primary);document.documentElement.style.setProperty('--lime',b.accent);
+ document.documentElement.style.setProperty('--brand-primary',b.primary);document.documentElement.style.setProperty('--brand-accent',b.accent);document.documentElement.style.setProperty('--brand-background',b.background);document.documentElement.style.setProperty('--navy',b.primary);document.documentElement.style.setProperty('--lime',b.accent);
  document.title=b.name+' · Camaleão Marketing Lab';
  }catch(e){if(state.csrf)document.querySelector('#brandState').textContent=e.message;}
 }

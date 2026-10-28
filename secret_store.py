@@ -47,7 +47,7 @@ def setting(db, name: str, default: str = "") -> str:
 
 def put_setting(db, name: str, value: str) -> None:
     if name not in {"openai_mode", "openai_model", "instagram_user_id", "instagram_enabled",
-                    "instagram_auto_refresh", "instagram_token_saved_at", "instagram_token_expires_at", "instagram_insights"}:
+                    "instagram_auto_refresh", "instagram_token_saved_at", "instagram_token_expires_at", "instagram_insights", "publication_policy"}:
         raise ValueError("Configuração inválida")
     db.execute("INSERT INTO settings(name,value,updated_at) VALUES(?,?,datetime('now')) "
                "ON CONFLICT(name) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at",

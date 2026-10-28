@@ -26,7 +26,7 @@ async function api(path, options={}) {
   if (!response.ok) throw new Error(data.error || 'Falha na operação');
   return data;
 }
-async function refresh() { state.data=await api('/api/dashboard'); render(); if(!window.cmlBrand&&typeof brandLoad==='function') await brandLoad(); }
+async function refresh() { state.data=await api('/api/dashboard'); if(!window.cmlBrand&&typeof brandLoad==='function') await brandLoad(); render(); }
 function showView(view) {
   state.view=view;history.replaceState(null,'','#'+view);
   document.querySelectorAll('.view').forEach(e=>e.classList.toggle('active',e.id===`view-${view}`));

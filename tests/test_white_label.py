@@ -58,3 +58,17 @@ class WhiteLabel(unittest.TestCase):
   brand.save({**brand.DEFAULT,'timezone':'America/Manaus'})
   a={'slug':'artigo','title':'Guia','description':'Descrição','body':'Texto útil. '*50,'published':'2026-10-24T01:00:00+00:00','sources':[{'url':'https://example.org','label':'Fonte'}]}
   self.assertEqual(blog_builder.validate(a)['published'],'2026-10-23')
+
+ def test_long_blog_slug_does_not_end_with_double_hyphen(self):
+  title='a'*64+' guia'
+  with app.connect() as db:
+   cid=db.execute("INSERT INTO content(kind,title,channel,summary,body,status,source_url,created_at,updated_at) VALUES('blog',?,'Blog',?,?,'approved',?,?,?)",(title,'Descrição','Texto útil. '*60,'https://example.org/reference',app.now(),app.now())).lastrowid
+  a=next(a for a in blog_builder.load_articles(cid) if a['title']==title)
+  self.assertEqual(a['slug'],'a'*64+'-'+str(cid))
+
+ def test_blog_publication_lock_prevents_concurrent_execution(self):
+  import fcntl,blog_publish
+  with patch.object(blog_publish,'DB_PATH',self.root/'db.sqlite'):
+   with (self.root/'blog-publish.lock').open('a') as lock:
+    fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+    with self.assertRaises(BlockingIOError):blog_publish.publish(1)

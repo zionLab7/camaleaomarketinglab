@@ -87,7 +87,7 @@ def _publish(content_id,prepare_only=False):
         if not row or row['kind'] not in {'post','carousel','reel'} or row['channel']!='Instagram' or row['status']!='approved':
             raise ValueError('Conteúdo precisa estar aprovado para Instagram')
         if not prepare_only and row['scheduled_at'] and row['scheduled_at']>now():raise RuntimeError('Horário da publicação ainda não chegou')
-        if not prepare_only and not daily_publication_available(db,'post','Instagram'):raise RuntimeError('O post de hoje já foi publicado; fila continua amanhã')
+        if not prepare_only and not daily_publication_available(db,'post','Instagram'):raise RuntimeError('Limite diário atingido ou intervalo mínimo em andamento; a fila aguardará')
         if setting(db,'instagram_enabled')!='true':raise RuntimeError('Publicação Instagram desativada')
         user_id=setting(db,'instagram_user_id');token=get_secret(db,'instagram_access_token')
         if not re.fullmatch(r'\d{5,30}',user_id) or not token:raise RuntimeError('Conta Instagram não configurada')

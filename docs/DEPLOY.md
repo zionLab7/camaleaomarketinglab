@@ -65,3 +65,9 @@ Copie `/data/backup.db`, `/data/brand.json`, `/data/library`, `/data/media`, sna
 A senha inicial é armazenada como hash. Alterar `CML_ADMIN_PASSWORD` depois do primeiro início não troca o usuário já criado; use o procedimento de [primeiro acesso](PRIMEIRO-ACESSO.md) para redefinição.
 
 Referências: [Portainer: stack pelo Git](https://docs.portainer.io/user/docker/stacks/add), [Docker: build](https://docs.docker.com/reference/compose-file/build/).
+
+## Atualizar da edição de uma postagem por dia
+
+A estrutura do calendário passa de uma reserva por dia para várias posições. Faça backup e pare **editorial, publisher e web** antes de trocar a imagem. Não mantenha um executor antigo escrevendo no banco migrado. No Portainer, pare os três containers, atualize a stack com pull da imagem nova e deixe os três serviços na mesma versão. O primeiro início migra o calendário automaticamente; a configuração permanece em uma publicação/dia até você alterar em **Calendário editorial → Ritmo de publicação**. Confira saúde do web e heartbeats antes de retomar aprovações.
+
+Para retornar a uma versão anterior, pare os serviços, restaure o backup do banco anterior à migração e use as imagens antigas nos três serviços. Trocar só a imagem, mantendo um banco migrado, não é um rollback compatível.

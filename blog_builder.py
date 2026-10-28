@@ -78,7 +78,7 @@ def load_articles(pending_id=None):
  for row in rows:
   import unicodedata
   title=unicodedata.normalize('NFKD',row['title']).encode('ascii','ignore').decode()
-  slug=re.sub(r'[^a-z0-9]+','-',title.lower()).strip('-')[:65] or 'artigo'
+  slug=re.sub(r'[^a-z0-9]+','-',title.lower()).strip('-')[:65].rstrip('-') or 'artigo'
   articles.append(validate({'slug':f"{slug}-{row['id']}",'title':row['title'],'description':row['summary'],'body':row['body'],'published':row['published_at'] or (date.today().isoformat() if row['id']==pending_id else row['updated_at'][:10]),'sources':[{'label':'Fonte de referência','url':row['source_url']}]}))
  if len({a['slug'] for a in articles})!=len(articles):raise ValueError('Slugs repetidos')
  return sorted(articles,key=lambda a:a['published'],reverse=True)

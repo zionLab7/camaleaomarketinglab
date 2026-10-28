@@ -43,7 +43,7 @@ def now() -> str:
 
 
 def next_publish_at(db: sqlite3.Connection, kind: str, channel: str) -> str | None:
-    """Reserve one approved article/post per São Paulo day."""
+    """Legacy reservation helper, using the configured per-channel daily capacity."""
     social = channel == 'Instagram' and kind in {'post','carousel','reel'}
     hour = 8 if kind == "blog" and channel == "Blog" else 18 if social else None
     if hour is None:
@@ -57,26 +57,26 @@ def next_publish_at(db: sqlite3.Connection, kind: str, channel: str) -> str | No
     placeholders=','.join('?' for _ in kinds)
     reservations = db.execute(f"SELECT COALESCE(scheduled_at,published_at) FROM content WHERE kind IN ({placeholders}) AND channel=? AND status IN ('approved','published') AND COALESCE(scheduled_at,published_at) IS NOT NULL",
                               (*kinds, channel))
-    reserved_days = set()
+    reserved_days = {}
+    reserved_stamps = set()
     for row in reservations:
         try:
-            reserved_days.add(datetime.fromisoformat(row[0]).astimezone(local_tz).date())
+            stamp=datetime.fromisoformat(row[0]).astimezone(local_tz)
+            reserved_days[stamp.date()]=reserved_days.get(stamp.date(),0)+1
+            reserved_stamps.add(stamp)
         except ValueError:
             continue
-    while slot.date() in reserved_days:
-        slot += timedelta(days=1)
+    from editorial_calendar import policy
+    rule=policy(db)[channel]
+    while reserved_days.get(slot.date(),0)>=rule["daily"] or slot in reserved_stamps:
+        if reserved_days.get(slot.date(),0)>=rule["daily"]:slot=(slot+timedelta(days=1)).replace(hour=hour,minute=0)
+        else:slot+=timedelta(minutes=rule["gap_minutes"])
     return slot.astimezone(timezone.utc).isoformat(timespec="seconds")
 
 
 def daily_publication_available(db: sqlite3.Connection, kind: str, channel: str) -> bool:
-    local = datetime.now(ZoneInfo(__import__("brand").get()["timezone"]))
-    start = local.replace(hour=0, minute=0, second=0, microsecond=0)
-    bounds = (start.astimezone(timezone.utc).isoformat(timespec="seconds"),
-              (start + timedelta(days=1)).astimezone(timezone.utc).isoformat(timespec="seconds"))
-    kinds=('post','carousel','reel') if channel=='Instagram' and kind in {'post','carousel','reel'} else (kind,)
-    placeholders=','.join('?' for _ in kinds)
-    return not db.execute(f"SELECT 1 FROM content WHERE kind IN ({placeholders}) AND channel=? AND status='published' AND published_at>=? AND published_at<? LIMIT 1",
-                          (*kinds, channel, *bounds)).fetchone()
+    from editorial_calendar import publication_available
+    return publication_available(db,kind,channel)
 
 
 class ClosingConnection(sqlite3.Connection):
@@ -585,6 +585,12 @@ class Handler(BaseHTTPRequestHandler):
             elif path == '/api/library/upload':
                 from library import upload
                 self.send_json(upload(data),201)
+            elif path == '/api/settings/publication':
+                from editorial_calendar import save_policy
+                with connect() as db:
+                    db.execute('BEGIN IMMEDIATE')
+                    result=save_policy(db,data)
+                self.send_json({'ok':True,'policy':result})
             elif path=='/api/creative/runs':
                 from creative_store import enqueue
                 with connect() as db:

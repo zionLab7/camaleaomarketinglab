@@ -12,7 +12,7 @@ Orquestrador de conteúdo, aprovação, publicação e aprendizagem comercial, p
 - Marca configurável no painel: público, fatos, tom, pilares, metas, logo, cores, CTA e preferências por agente.
 - Equipe especializada com LangGraph: análise → estratégia → pesquisa → copy → SEO → arte/motion → renderização → revisão. Checkpoints, retomada e até duas rodadas de revisão.
 - Posts, carrosséis e Reels com templates controlados; biblioteca privada com upload de imagens autorizadas. Três vetores abstratos originais acompanham a instalação; fotos, clientes e materiais de outras empresas não acompanham.
-- Calendário diário Instagram/blog, seis dias de propostas à frente e horários alternados configuráveis. Sem aprovação humana, não publica.
+- Calendário Instagram/blog com 1 a 6 publicações por dia em cada canal, intervalo mínimo configurável e seis dias de propostas à frente. Sem aprovação humana, não publica.
 - Instagram profissional via API oficial, com aprovação vinculada ao hash da mídia e controle de envio para reduzir duplicatas.
 - Blog estático rápido em `/blog/`, SEO básico, referências, sitemap próprio e CTA para seu site/LP. Publicador SSH com host fixado, backup e conferência de hashes.
 - Medição consentida pelo GTM/GA4, relatórios de GA4 e Search Console, leads via n8n/webhook e status em uma planilha privada.
@@ -75,6 +75,7 @@ python3 -m venv .venv
 pip install -r requirements.txt
 python -m unittest discover -s tests -v
 node tests/test_tracking.js
+node tests/test_calendar.js
 python scripts/check_public_source.py
 ```
 

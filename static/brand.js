@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  document.querySelector('#brandForm').addEventListener('submit',async e=>{
  e.preventDefault();const data={...window.cmlBrand,agents:{...window.cmlBrand.agents}},f=e.target,status=document.querySelector('#brandState');
  for(const input of f.elements){if(!input.name)continue;const key=input.name;if(key.startsWith('agent_'))data.agents[key.slice(6)]=input.value;else data[key]=input.type==='checkbox'?input.checked:brandLists.includes(key)?input.value.split('\n').map(x=>x.trim()).filter(Boolean):input.value;}
- try{await api('/api/brand',{method:'POST',body:JSON.stringify(data)});await brandLoad();status.textContent='Marca e agentes salvos. Novas peças usarão essa direção.';}catch(err){status.textContent=err.message;}
+ try{await api('/api/brand',{method:'POST',body:JSON.stringify(data)});await brandLoad();await refresh();status.textContent='Marca e agentes salvos. Novas peças usarão essa direção.';}catch(err){status.textContent=err.message;}
  });
  document.querySelector('#libraryUpload').addEventListener('submit',async e=>{
  e.preventDefault();const f=e.target,file=f.elements.file.files[0],status=document.querySelector('#uploadState');

@@ -6,7 +6,7 @@
 4. Envie seu logo em PNG/WebP/JPEG em Biblioteca da marca. Copie o ID retornado para Logo e salve. Outros elementos enviados ficam disponíveis para os agentes. Os elementos iniciais são vetores genéricos; substitua-os se não fizerem sentido para sua marca.
 5. Personalize preferências de cada agente. Exemplos: copywriter com voz direta e sem urgência artificial; pesquisador focado em dúvidas do seu público; arte com composição limpa; analista priorizando conversas qualificadas e receita confirmada. O papel de viral/gancho é coberto pelo estrategista e copywriter; não existe promessa de viralização.
 6. Cadastre fontes HTTPS que contenham `<main>` ou `<article>` e não redirecionem. Para radar, configure feeds RSS e os domínios permitidos. Fontes externas são dados não confiáveis; agentes não podem executar suas instruções.
-7. Defina os horários de teste por canal, um HH:MM por linha. Novas vagas alternam entre os horários. Peças já associadas mantêm a reserva até reprogramação manual; salvar marca não altera conteúdo publicado.
+7. Em **Calendário editorial → Ritmo de publicação**, configure o máximo diário por canal (1 a 6) e o intervalo mínimo (5 a 360 minutos). O padrão de compatibilidade é uma publicação por dia; aumente quando desejar. A criação automática acompanha esse volume e pode consumir mais limites/créditos do provedor. Em Marca, defina os horários de teste por canal, um HH:MM por linha. Novas vagas alternam entre os horários. Peças já associadas mantêm a reserva até reprogramação manual; salvar marca não altera conteúdo publicado.
 8. Conecte as integrações que quiser e só então habilite geração automática. Uma instalação pode operar manualmente sem Codex, Meta ou Google.
 9. Crie um briefing piloto. Confira se a arte, CTA, legenda e data refletem seu negócio. Aprovação humana é obrigatória. Edição posterior invalida a aprovação da versão anterior.
 
@@ -26,3 +26,5 @@ with connect() as db:
 ```
 
 Isso não revoga sessões já assinadas. Para incidente, pare os serviços e siga a orientação em SECURITY.md; não troque o segredo mestre sem migrar/recriptografar os dados.
+
+O limite do Instagram é compartilhado por posts, carrosséis e Reels; o blog tem cota própria. A contagem usa o fuso da empresa, inclusive fins de semana. Aumentar o ritmo não aprova peças e não altera datas já associadas. Reduzir o ritmo não exclui aprovações; excedentes aguardam disponibilidade. Horários preferenciais são usados como base; posições extras podem receber horários complementares.

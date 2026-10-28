@@ -21,7 +21,7 @@ flowchart LR
 - `creative_pipeline.py`: grafo LangGraph, saída JSON validada, checkpoints SQLite, ambiente reduzido no Codex e templates controlados. Nenhum HTML ou comando gerado pelo modelo é executado.
 - `creative-engine/.agents/skills`: oito funções especializadas. Preferências do operador são anexadas à direção da marca; regras de segurança não são desativáveis por brief.
 - `library.py`: elementos originais iniciais, uploads raster validados e sem EXIF, logo e configuração para renderização. Arquivos privados ficam no volume.
-- `editorial_calendar.py`: reserva antes da aprovação, horários alternados e reprogramação. Meta padrão de uma peça por canal/dia, incluindo fins de semana.
+- `editorial_calendar.py`: reserva antes da aprovação, horários alternados e reprogramação. Várias posições por canal/dia, cota e espaçamento configuráveis, incluindo fins de semana. Migração transacional preserva reservas antigas; o padrão legado de uma peça/dia é mantido até o administrador alterar.
 - `scheduler.py`: editorial/radar/relatório; publisher/blog/Instagram/Google. Papéis separados, heartbeat e retomada; deploy padrão não exige cron externo.
 - `blog_builder.py` e `hosting_upload.py`: HTML estático, fontes, sitemap do blog, pinagem SSH, backup e hashes.
 - `leads.py` e `google_sync.py`: contatos criptografados, deduplicação, status/pagamentos e APIs Google com escopo limitado.

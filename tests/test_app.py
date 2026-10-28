@@ -85,6 +85,18 @@ class AppFlow(unittest.TestCase):
         self.assertEqual(self.request('POST','/api/library/upload',{'data':'not-an-image','rights_confirmed':True},cookie,csrf)[0],400)
         self.assertEqual(self.request('POST','/api/brand',original,cookie,csrf)[0],200)
 
+    def test_z_publication_policy_is_admin_only_and_validated(self):
+        cookie,csrf=self.login()
+        payload={c:{'daily':2,'gap_minutes':60} for c in ['Instagram','Blog']}
+        self.assertEqual(self.request('POST','/api/settings/publication',payload)[0],401)
+        self.assertEqual(self.request('POST','/api/settings/publication',payload,cookie)[0],403)
+        self.assertEqual(self.request('POST','/api/settings/publication',payload,cookie,csrf)[0],200)
+        self.assertEqual(self.request('GET','/api/dashboard',cookie=cookie)[1]['calendar']['daily_target'],{'Instagram':2,'Blog':2})
+        payload['Blog']['daily']=0
+        self.assertEqual(self.request('POST','/api/settings/publication',payload,cookie,csrf)[0],400)
+        payload={c:{'daily':1,'gap_minutes':60} for c in ['Instagram','Blog']}
+        self.assertEqual(self.request('POST','/api/settings/publication',payload,cookie,csrf)[0],200)
+
     def test_auth_csrf_approval_audit_and_metrics(self):
         self.assertEqual(self.request("GET", "/api/dashboard")[0], 401)
         self.assertEqual(self.request("POST", "/api/login", ["admin"])[0], 400)
@@ -241,7 +253,7 @@ class AppFlow(unittest.TestCase):
             self.assertFalse(app.daily_publication_available(db,"post","Instagram"))
             second = db.execute("INSERT INTO content(kind,title,channel,body,status,created_at,updated_at) VALUES(?,?,?,?,?,?,?)",
                                 ("post","Fila de amanhã","Instagram","Legenda revisada","approved",app.now(),app.now())).lastrowid
-        with self.assertRaisesRegex(RuntimeError,"post de hoje"):
+        with self.assertRaisesRegex(RuntimeError,"Limite diário"):
             instagram_publish.publish(second)
 
     def test_editorial_enters_review_with_grounded_reference(self):

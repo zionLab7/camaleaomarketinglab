@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import html
+import fcntl
 import os
 import re
 import subprocess
@@ -9,7 +10,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from app import audit, connect, daily_publication_available, now
+from app import DB_PATH, audit, connect, daily_publication_available, now
 from blog_builder import build
 from jobs import record_job
 
@@ -31,6 +32,12 @@ def settings() -> tuple[str, str, int, Path, Path, str]:
 
 
 def publish(content_id: int) -> None:
+    with (DB_PATH.parent/'blog-publish.lock').open('a') as lock:
+        fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        _publish(content_id)
+
+
+def _publish(content_id: int) -> None:
     with connect() as db:
         row = db.execute("SELECT kind,channel,status,scheduled_at FROM content WHERE id=?", (content_id,)).fetchone()
         if not row or row["kind"] != "blog" or row["channel"] != "Blog" or row["status"] != "approved":
@@ -38,7 +45,7 @@ def publish(content_id: int) -> None:
         if row["scheduled_at"] and row["scheduled_at"] > now():
             raise RuntimeError("Horário da publicação ainda não chegou")
         if not daily_publication_available(db, "blog", "Blog"):
-            raise RuntimeError("O artigo de hoje já foi publicado; fila continua amanhã")
+            raise RuntimeError("Limite diário atingido ou intervalo mínimo em andamento; a fila aguardará")
     host, user, port, key, known, remote = settings()
     with tempfile.TemporaryDirectory(prefix="cml-blog-") as scratch:
         output = Path(scratch) / "blog"

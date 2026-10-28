@@ -11,7 +11,7 @@ A aplicação chama `codex exec` no serviço editorial, com esquema JSON, ambien
 5. Defina `CML_CODEX_ENABLED=true` na stack e recrie o editorial preservando `codex_auth`.
 6. Os modelos são configuráveis em `CML_CREATIVE_MODEL`, `CML_CREATIVE_FALLBACK_MODEL` e `CML_BLOG_CODEX_MODEL`. Use modelos disponíveis à sua conta. A imagem fixa a versão do CLI; atualize/teste antes de trocar.
 
-A rotina passa a preencher lacunas dos próximos seis dias, um conteúdo por dia em cada canal. A equipe social alterna carrosséis, posts e Reels ao longo da semana. Blog exige ao menos uma fonte editorial configurada. Esgotamento de limites gera erro/retentativa; não aciona cobrança por API automaticamente.
+A rotina passa a preencher lacunas dos próximos seis dias, conforme o volume diário de cada canal definido em Calendário editorial → Ritmo de publicação. Aumentar esse volume amplia a geração e o consumo da assinatura/API escolhida. A equipe social alterna carrosséis, posts e Reels ao longo da semana. Blog exige ao menos uma fonte editorial configurada. Esgotamento de limites gera erro/retentativa; não aciona cobrança por API automaticamente.
 
 O volume contém autorização persistente da conta. Proteja console, backups e Portainer. Use uma conta autorizada por instalação; não distribua um auth.json em repositórios ou para usuários do projeto.
 

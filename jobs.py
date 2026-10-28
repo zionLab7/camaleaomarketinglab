@@ -117,9 +117,9 @@ def editorial(kind: str):
         with connect() as db:
             from editorial_calendar import ensure_horizon
             ensure_horizon(db)
-            slot=db.execute("SELECT local_date FROM editorial_slots WHERE channel='Instagram' AND content_id IS NULL AND scheduled_at>? ORDER BY scheduled_at LIMIT 1",(now(),)).fetchone()
+            slot=db.execute("SELECT local_date,scheduled_at FROM editorial_slots WHERE channel='Instagram' AND content_id IS NULL AND scheduled_at>? ORDER BY scheduled_at LIMIT 1",(now(),)).fetchone()
             if not slot:return
-            day='calendar:'+slot['local_date']
+            day='calendar:'+slot['scheduled_at']
             run_id=enqueue(db,'Criar uma pauta social original, útil e com a identidade aprovada da marca. '
                            'Alternar os pilares editoriais e as metas da configuração da empresa; '
                            'evitar repetir assuntos recentes. Entregar para aprovação humana.',day_key=day)

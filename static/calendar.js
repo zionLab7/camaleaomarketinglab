@@ -1,18 +1,37 @@
+// Convert an administrator's wall-clock selection using the business IANA timezone.
+function zonedISO(value,zone){
+  const match=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value);
+  if(!match)throw new Error('Data e hora inválidas');
+  const target=Date.UTC(...[Number(match[1]),Number(match[2])-1,...match.slice(3).map(Number)]);
+  const format=new Intl.DateTimeFormat('en-CA',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
+  let instant=target;
+  const wall=(stamp)=>{const p=Object.fromEntries(format.formatToParts(new Date(stamp)).map(x=>[x.type,x.value]));return Date.UTC(Number(p.year),Number(p.month)-1,Number(p.day),Number(p.hour),Number(p.minute));};
+  for(let i=0;i<4;i++){const diff=target-wall(instant);if(!diff)break;instant+=diff;}
+  if(wall(instant)!==target)throw new Error('Este horário não existe no fuso da empresa. Escolha outro horário.');
+  return new Date(instant).toISOString();
+}
+if(typeof module!=='undefined')module.exports={zonedISO};
 /* Editorial calendar: dates are assigned before approval; no automatic approval. */
-function calendarStamp(value){return new Date(value).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});}
+function calendarZone(){return window.cmlBrand?.timezone||'America/Sao_Paulo';}
+function calendarStamp(value){return new Date(value).toLocaleString('pt-BR',{timeZone:calendarZone(),day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});}
 function editorialRender(){
   const data=state.data.calendar;if(!data)return;
+  const form=document.querySelector('#publicationPolicyForm');
+  if(form&&!form.contains(document.activeElement)){
+    const p=data.publication_policy;
+    if(p){form.elements.instagram_daily.value=p.Instagram.daily;form.elements.instagram_gap.value=p.Instagram.gap_minutes;form.elements.blog_daily.value=p.Blog.daily;form.elements.blog_gap.value=p.Blog.gap_minutes;}
+  }
   const root=document.querySelector('#editorialCalendar');root.replaceChildren();
   const labels={draft:'Em criação',review:'Aguardando aprovação',approved:'Aprovado',published:'Publicado'};
   const days=new Map();for(const slot of data.slots){if(!days.has(slot.local_date))days.set(slot.local_date,[]);days.get(slot.local_date).push(slot);}
   for(const [day,slots]of days){
-    const section=node('section','calendar-day');const heading=node('h2','',new Date(day+'T12:00:00-03:00').toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo',weekday:'long',day:'2-digit',month:'short'}));section.append(heading);
+    const section=node('section','calendar-day');const heading=node('h2','',new Date(day+'T12:00:00Z').toLocaleDateString('pt-BR',{timeZone:'UTC',weekday:'long',day:'2-digit',month:'short'}));section.append(heading);
     const grid=node('div','calendar-day-grid');
     for(const slot of slots){
       const card=node('article','calendar-piece '+(slot.status||'empty'));
       const top=node('div','calendar-piece-top');top.append(node('span','eyebrow',slot.channel),node('strong','',calendarStamp(slot.scheduled_at).split(', ').pop()));card.append(top);
       card.append(node('h3','',slot.title||'Pauta reservada para a equipe'),node('p','calendar-status',labels[slot.status]||'Falta criar conteúdo'));
-      card.append(node('small','',`Horário de teste: ${slot.test_arm} · São Paulo`));
+      card.append(node('small','',`Horário de teste: ${slot.test_arm} · ${calendarZone()}`));
       if(slot.overdue)card.append(node('p','calendar-warning','Horário vencido · aguardando recuperação da fila'));
       if(slot.last_result==='error')card.append(node('p','calendar-warning',slot.error||'Falha de publicação; a fila tentará novamente'));
       if(slot.content_id){const actions=node('div','calendar-actions');
@@ -36,9 +55,13 @@ function editorialRender(){
 function calendarEdit(slot){
   const form=document.querySelector('#scheduleForm');form.dataset.contentId=slot.content_id;
   document.querySelector('#scheduleTitle').textContent=slot.title;
-  const parts=new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(slot.scheduled_at));
+  const parts=new Intl.DateTimeFormat('sv-SE',{timeZone:calendarZone(),year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(slot.scheduled_at));
   form.elements.scheduled_at.value=parts.replace(' ','T');document.querySelector('#scheduleDialog').showModal();
 }
-document.addEventListener('DOMContentLoaded',()=>{
-  document.querySelector('#scheduleForm').addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget;try{await api(`/api/content/${form.dataset.contentId}/schedule`,{method:'POST',body:JSON.stringify({scheduled_at:new Date(form.elements.scheduled_at.value+'-03:00').toISOString()})});document.querySelector('#scheduleDialog').close();await refresh();toast('Data e hora atualizadas. A aprovação da peça continua obrigatória.');}catch(error){toast(error.message,true);}});
+if(typeof document!=='undefined')document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelector('#publicationPolicyForm').addEventListener('submit',async e=>{
+    e.preventDefault();const f=e.target,button=f.querySelector('button'),status=document.querySelector('#publicationPolicyState');button.disabled=true;
+    try{const payload={Instagram:{daily:Number(f.elements.instagram_daily.value),gap_minutes:Number(f.elements.instagram_gap.value)},Blog:{daily:Number(f.elements.blog_daily.value),gap_minutes:Number(f.elements.blog_gap.value)}};await api('/api/settings/publication',{method:'POST',body:JSON.stringify(payload)});await refresh();status.textContent='Ritmo salvo. Datas existentes e aprovações preservadas.';}catch(error){status.textContent=error.message;}finally{button.disabled=false;}
+  });
+  document.querySelector('#scheduleForm').addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget;try{await api(`/api/content/${form.dataset.contentId}/schedule`,{method:'POST',body:JSON.stringify({scheduled_at:zonedISO(form.elements.scheduled_at.value,calendarZone())})});document.querySelector('#scheduleDialog').close();await refresh();toast('Data e hora atualizadas. A aprovação da peça continua obrigatória.');}catch(error){toast(error.message,true);}});
 });
